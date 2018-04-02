@@ -1,20 +1,48 @@
 package main
 
-import "fmt"
+import (
+	"log"
+	"net/http"
+	"time"
+
+	"github.com/gin-gonic/gin"
+	"github.com/golang-plus/uuid"
+)
 
 func main() {
-	done := make(chan bool, 5)
-	go func() {
-		for {
-			fmt.Println("On a goroutine")
-			done <- true
+	app := gin.Default()
+	app.POST("/calculate", func(c *gin.Context) {
+		uid, err := uuid.New()
+		if err != nil {
+			log.Printf("Something went wrong: %s", err)
+			c.JSON(http.StatusOK, gin.H{
+				"success": false,
+			})
+			return
 		}
-	}()
-	fmt.Println("Outside a goroutine")
-	i := 0
-	for i <= 5 {
-		if <-done {
-			i++
-		}
-	}
+		// go work(uid.String())
+		go work(uid.String())
+		log.Println("Sending json")
+		c.JSON(http.StatusOK, gin.H{
+			"success": true,
+			"uuid":    uid.String(),
+		})
+	})
+	app.Run(":8083")
+}
+
+func work(id string) {
+	log.Printf("1 doing work %s", id)
+	time.Sleep(2 * time.Second)
+	log.Printf("2 doing work %s", id)
+	time.Sleep(2 * time.Second)
+	log.Printf("3 doing work %s", id)
+	time.Sleep(2 * time.Second)
+	log.Printf("4 doing work %s", id)
+	time.Sleep(2 * time.Second)
+	log.Printf("5 doing work %s", id)
+	time.Sleep(2 * time.Second)
+	log.Printf("6 doing work %s", id)
+	time.Sleep(2 * time.Second)
+	log.Printf("7 doing work %s", id)
 }
