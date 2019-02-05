@@ -29,3 +29,7 @@ services:
     build: websocket-server
     ports:
       - "8083:8083"
+  processing-service:
+    build: processing-service
+    ports:
+      - "8084:8084"

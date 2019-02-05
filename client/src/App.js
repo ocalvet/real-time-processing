@@ -3,27 +3,32 @@ import React, { Component } from 'react';
 class App extends Component {
   constructor(props) {
     super(props);
+    fetch('http://localhost:8084/calculate', {
+      method: 'POST',
+      data: JSON.stringify({})
+    })
+    .then(resp => {
+      return resp.json();
+    })
+    .then(data => {
+      console.log('RESPONSE:', data);
+      this.startSocket(data.data);
+    });
+  }
+  startSocket(id) {
+    console.log('starting socket ' + id);
     this.ws = new WebSocket('ws://localhost:8083/ws');
     this.state = {
       messages: []
     };
-    this.ws.addEventListener('message', (e) => {
-      console.log('message received');
+    this.ws.addEventListener(id, (e) => {
+      console.log('message received for ' + id);
       var msg = JSON.parse(e.data);
       const messages = this.state.messages;
       this.setState({
         messages: [msg.message, ...this.state.messages]
       });
     });
-    let ctr = 0;
-    setInterval(() => {
-      this.ws.send(
-        JSON.stringify({
-          email: 'test@test.com',
-          username: 'test-user',
-          message: `message ${ctr++}`
-        }));
-    }, 2000);
   }
   render() {
     return (
